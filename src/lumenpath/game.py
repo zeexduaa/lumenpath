@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+import math
+
 import pygame
 
 from .board import CRYSTAL, EMITTERS, FIXED, WALL, Level, Pos
 from .progress import Progress
 from .puzzle import Puzzle
+from .scoring import MAX_STARS, stars
 
 CELL = 64
 HUD = 76
@@ -34,6 +37,7 @@ MIRROR_FIXED = (118, 126, 148)
 PIVOT = (70, 110, 200)
 HINT = (120, 255, 160)
 EMITTER = (255, 165, 60)
+STAR_EMPTY = (70, 78, 104)
 
 HELP = "Click a mirror to turn it    Z undo    R restart    H hint    N / P next / previous    Esc quit"
 
@@ -165,7 +169,23 @@ class Game:
         self.text(self.font, title, TEXT, (MARGIN, HUD // 2), "midleft")
         best = self.progress.best.get(self.level.id)
         stats = f"Moves {self.puzzle.moves}    Par {self.level.par or '-'}    Best {best or '-'}"
-        self.text(self.font, stats, MUTED, (self.size[0] - MARGIN, HUD // 2), "midright")
+        right = self.size[0] - MARGIN
+        if best is not None:
+            earned = stars(best, self.level.par)
+            self.draw_stars(earned, (right - 36, HUD // 2), radius=9)
+            right -= 84
+        self.text(self.font, stats, MUTED, (right, HUD // 2), "midright")
+
+    def draw_stars(self, earned: int, centre: tuple[int, int], radius: int) -> None:
+        """A row of MAX_STARS stars centred on ``centre``, the first ``earned`` filled in."""
+        gap = radius * 2 + radius // 2
+        first_x = centre[0] - gap * (MAX_STARS - 1) // 2
+        for i in range(MAX_STARS):
+            points = star_points((first_x + i * gap, centre[1]), radius)
+            if i < earned:
+                pygame.draw.polygon(self.screen, GOLD, points)
+            else:
+                pygame.draw.polygon(self.screen, STAR_EMPTY, points, 2)
 
     def draw_tiles(self) -> None:
         for y, row in enumerate(self.level.rows):
@@ -226,7 +246,7 @@ class Game:
             )
 
     def draw_solved(self) -> None:
-        w, h = 460, 190
+        w, h = 460, 230
         panel = pygame.Rect((self.size[0] - w) // 2, HUD + (self.board_rows * CELL - h) // 2, w, h)
         shade = pygame.Surface(panel.size, pygame.SRCALPHA)
         shade.fill((10, 12, 20, 225))
@@ -237,9 +257,10 @@ class Game:
         par = f" (par {self.level.par})" if self.level.par else ""
         line = f"{self.puzzle.moves} moves{par}" + ("   New best!" if self.new_best else "")
         self.text(self.font, line, TEXT, (cx, panel.top + 104), "center")
+        self.draw_stars(stars(self.puzzle.moves, self.level.par), (cx, panel.top + 148), radius=16)
         last = self.index == len(self.levels) - 1
         prompt = "You've lit every crystal. Thanks for playing!" if last else "Press Enter for the next level"
-        self.text(self.small, prompt, MUTED, (cx, panel.top + 150), "center")
+        self.text(self.small, prompt, MUTED, (cx, panel.top + 196), "center")
 
     def run(self) -> None:
         clock = pygame.time.Clock()
@@ -251,3 +272,14 @@ class Game:
             self.draw()
             pygame.display.flip()
             clock.tick(FPS)
+
+
+def star_points(centre: tuple[int, int], radius: float) -> list[tuple[float, float]]:
+    """The ten corners of a five-pointed star, point up."""
+    cx, cy = centre
+    points = []
+    for i in range(10):
+        r = radius if i % 2 == 0 else radius * 0.45
+        angle = math.pi / 2 + i * math.pi / 5
+        points.append((cx + r * math.cos(angle), cy - r * math.sin(angle)))
+    return points
