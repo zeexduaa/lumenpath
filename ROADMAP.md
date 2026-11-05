@@ -15,7 +15,7 @@ L = several days, XL = a week or more). Order may change as I play-test.
 - [ ] **Animations**: mirrors rotate smoothly, beams sweep out from the emitter, crystals pulse when lit (M)
 - [ ] **Sound effects** for turning, lighting a crystal and solving, with a mute key (M)
 - [ ] **Level select screen** showing solved levels, best moves and stars (M)
-- [ ] **Star ratings**: 3 stars at par, 2 within +2, 1 for any solve (S)
+- [x] **Star ratings**: 3 stars at par, 2 within +2, 1 for any solve (S)
 - [ ] **Resizable window** and scaling for small and high-DPI screens (M)
 - [ ] **Colour-blind friendly palette** and shapes, not just colours, for lit and unlit crystals (S)
 

@@ -102,3 +102,11 @@ def test_cli_rejects_bad_level_folder(tmp_path, capsys):
 
 def test_cli_rejects_out_of_range_level(capsys):
     assert main(["--level", "999"]) == 2
+
+
+def test_star_points_make_a_point_up_star():
+    from lumenpath.game import star_points
+
+    points = star_points((100, 100), 20)
+    assert len(points) == 10
+    assert points[0] == pytest.approx((100, 80))  # the top point
