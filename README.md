@@ -44,7 +44,7 @@ python -m lumenpath
 | `N` / `Enter`, `P` | Next level (once solved), previous level |
 | `Esc` | Quit |
 
-Your progress and best move counts are saved, so the game picks up at your first unsolved level.
+Each solve earns stars: three at par, two within two moves of par, one for any other solve. Your progress, best move counts and stars are saved, so the game picks up at your first unsolved level.
 
 ```bash
 lumenpath --level 3          # jump to a level you've unlocked
